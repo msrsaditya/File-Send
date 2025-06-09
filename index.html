@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Share Files With Anyone">
+    <title>File Share</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+        }
+        .card {
+            background-color: #1e293b;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            width: 100%;
+            max-width: 520px;
+            border: 1px solid rgba(71, 85, 105, 0.5);
+        }
+        @media (min-width: 640px) {
+            .card {
+                padding: 2.5rem;
+            }
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.875rem 1.75rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            font-size: 1rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0,0,0,0.2);
+        }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        .btn-primary { background: linear-gradient(to right, #6366f1, #818cf8); }
+        .btn-secondary { background: linear-gradient(to right, #10b981, #34d399); }
+        .btn-danger { background: linear-gradient(to right, #ef4444, #f87171); }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #334155;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 1.75rem;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #6366f1, #818cf8);
+            width: 0%;
+            transition: width 0.2s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: white;
+        }
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+        }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1e293b;
+            color: white;
+            padding: 1rem 1.75rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s, top 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            border: 1px solid #475569;
+        }
+        #notification.show {
+            opacity: 1;
+            visibility: visible;
+            top: 40px;
+        }
+
+        .input-code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 2px solid #475569;
+            background-color: #0f172a;
+            font-size: 1.2rem;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            transition: all 0.2s;
+            color: #e2e8f0;
+            text-transform: uppercase;
+        }
+        .input-code:focus {
+            outline: none;
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3);
+        }
+
+        .connection-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid #334155;
+        }
+        .stat-value {
+            font-weight: 700;
+            color: #e2e8f0;
+            font-size: 1.1rem;
+            margin-top: 0.25rem;
+        }
+
+        input[type="file"]::-webkit-file-upload-button,
+        input[type="file"]::file-selector-button {
+            display: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <header class="text-center mb-8 mt-4">
+        <h1 class="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">File Share</h1>
+        <p class="mt-3 text-lg text-indigo-200 max-w-md">Share Files With Anyone</p>
+    </header>
+
+    <div id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span>Notification Message</span>
+    </div>
+
+    <div id="roleSelectionView" class="card text-center">
+        <h2 class="text-2xl font-semibold mb-6 text-slate-200">What Would You Like To Do?</h2>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button id="showSenderViewBtn" class="btn btn-primary w-full sm:w-auto"><i class="fas fa-upload mr-2"></i>Send</button>
+            <button id="showReceiverViewBtn" class="btn btn-secondary w-full sm:w-auto"><i class="fas fa-download mr-2"></i>Receive</button>
+        </div>
+    </div>
+
+    <div id="senderView" class="card hidden">
+        <div id="senderStep1">
+            <h2 class="text-2xl font-semibold mb-6 text-slate-200 text-center">Select Files or a Folder</h2>
+            <div class="space-y-4">
+                <label for="fileInput" class="btn btn-primary w-full cursor-pointer">
+                    <i class="fas fa-file-alt mr-2"></i> Select File
+                </label>
+                <input type="file" id="fileInput" class="hidden" multiple>
+                <label for="folderInput" class="btn btn-primary w-full cursor-pointer">
+                    <i class="fas fa-folder mr-2"></i> Select Folder
+                </label>
+                <input type="file" id="folderInput" class="hidden" webkitdirectory directory>
+            </div>
+            <p id="fileName" class="mt-4 text-center text-sm text-slate-400">No Files or Folder Selected.</p>
+            <button class="back-btn mt-6 w-full sm:w-auto"><i class="fas fa-arrow-left mr-2"></i>Back</button>
+        </div>
+        <div id="senderStep2" class="hidden text-center">
+            <h3 class="font-semibold mb-2 text-lg text-slate-200">Share This Code With Receiver</h3>
+            <div class="relative mb-4">
+                <input type="text" id="roomIdDisplay" class="input-code" readonly>
+                <button onclick="copyToClipboard('roomIdDisplay')" class="absolute top-1/2 -translate-y-1/2 right-4 text-slate-400 hover:text-indigo-300 text-lg"><i class="fas fa-copy"></i></button>
+            </div>
+            <div class="py-4">
+                <i class="fas fa-spinner fa-spin text-3xl text-indigo-400 mb-3"></i>
+                <p class="text-slate-400">Waiting for Receiver to Join...</p>
+            </div>
+            <button class="back-btn mt-2 w-full sm:w-auto"><i class="fas fa-arrow-left mr-2"></i>Back</button>
+        </div>
+    </div>
+
+    <div id="receiverView" class="card hidden">
+        <button class="back-btn mb-4"><i class="fas fa-arrow-left mr-2"></i>Back</button>
+        <div id="receiverStep1">
+            <h3 class="font-semibold mb-3 text-lg text-center text-slate-200">Enter the Code From Sender</h3>
+            <input type="text" id="roomIdInput" class="input-code" placeholder="ABCDEF" maxlength="6">
+            <button id="connectToRoomBtn" class="btn btn-primary mt-4 w-full">Connect</button>
+        </div>
+        <div id="receiverConnecting" class="hidden text-center py-6">
+            <i class="fas fa-spinner fa-spin text-3xl text-indigo-400 mb-3"></i>
+            <p class="text-slate-400">Connecting to Sender...</p>
+        </div>
+    </div>
+
+    <div id="statusView" class="card hidden text-center">
+        <h2 id="statusTitle" class="text-2xl font-semibold mb-3 text-slate-200"></h2>
+        <p id="statusMessage" class="text-slate-400 mb-2"></p>
+        <i id="statusIcon" class="text-5xl"></i>
+
+        <div class="progress-bar-container mb-4 hidden">
+            <div class="progress-text">0%</div>
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <p id="overallProgressMessage" class="text-sm text-slate-400 my-2 h-5"></p>
+
+        <div class="connection-stats hidden">
+            <div class="stat-item"><span class="font-semibold">Speed</span><span id="speedValue" class="stat-value">0 MB/s</span></div>
+            <div class="stat-item"><span class="font-semibold">Transferred</span><span id="transferredValue" class="stat-value">0 MB</span></div>
+            <div class="stat-item"><span class="font-semibold">Elapsed</span><span id="elapsedValue" class="stat-value">--</span></div>
+            <div class="stat-item"><span class="font-semibold">ETA</span><span id="etaValue" class="stat-value">--</span></div>
+        </div>
+
+        <div id="fileListContainer" class="mt-6 w-full text-left bg-slate-900/70 p-4 rounded-lg max-h-60 overflow-y-auto hidden"></div>
+
+        <button id="actionButton" class="btn btn-danger mt-0 w-full"></button>
+    </div>
+
+    <script>
+        const roleSelectionView = document.getElementById('roleSelectionView');
+        const senderView = document.getElementById('senderView');
+        const receiverView = document.getElementById('receiverView');
+        const statusView = document.getElementById('statusView');
+        const showSenderViewBtn = document.getElementById('showSenderViewBtn');
+        const showReceiverViewBtn = document.getElementById('showReceiverViewBtn');
+        const backBtns = document.querySelectorAll('.back-btn');
+        const actionButton = document.getElementById('actionButton');
+        const fileInput = document.getElementById('fileInput');
+        const folderInput = document.getElementById('folderInput');
+        const fileNameDisplay = document.getElementById('fileName');
+        const senderStep1 = document.getElementById('senderStep1');
+        const senderStep2 = document.getElementById('senderStep2');
+        const roomIdDisplay = document.getElementById('roomIdDisplay');
+        const roomIdInput = document.getElementById('roomIdInput');
+        const connectToRoomBtn = document.getElementById('connectToRoomBtn');
+        const receiverStep1 = document.getElementById('receiverStep1');
+        const receiverConnecting = document.getElementById('receiverConnecting');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusMessage = document.getElementById('statusMessage');
+        const statusIcon = document.getElementById('statusIcon');
+        const progressBarContainer = document.querySelector('.progress-bar-container');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.querySelector('.progress-text');
+        const overallProgressMessage = document.getElementById('overallProgressMessage');
+        const speedValue = document.getElementById('speedValue');
+        const transferredValue = document.getElementById('transferredValue');
+        const elapsedValue = document.getElementById('elapsedValue');
+        const etaValue = document.getElementById('etaValue');
+        const connectionStats = document.querySelector('.connection-stats');
+        const fileListContainer = document.getElementById('fileListContainer');
+        const notification = document.getElementById('notification');
+
+        let peer = null;
+        let conn = null;
+        let currentRole = '';
+        let selectedFiles = [];
+        let fileQueue = [];
+        let totalTransferSize = 0;
+        let totalBytesTransferred = 0;
+        let fileReader;
+        let isTransferActive = false;
+        let transferStartTime = 0;
+        let incomingFilesMetadata = [];
+        let currentFileReceivingIndex = 0;
+        let receivedFileParts = [];
+        let receivedPartBytes = 0;
+
+        const CHUNK_SIZE = 128 * 1024;
+
+        function initPeer(id) {
+            if (peer) peer.destroy();
+            peer = new Peer(id, { debug: 2 });
+            peer.on('error', handlePeerError);
+        }
+
+        function fullResetAndGoToMain() {
+            isTransferActive = false;
+            if (conn) conn.close();
+            if (peer) peer.destroy();
+            if (fileReader && fileReader.readyState === 1) fileReader.abort();
+
+            peer = null; conn = null; currentRole = '';
+            selectedFiles = []; fileQueue = [];
+            totalTransferSize = 0; totalBytesTransferred = 0;
+            incomingFilesMetadata = []; currentFileReceivingIndex = 0;
+            receivedFileParts = []; receivedPartBytes = 0;
+
+            fileInput.value = '';
+            folderInput.value = '';
+            fileNameDisplay.textContent = 'No Files or Folder Selected.';
+            roomIdInput.value = '';
+            roomIdDisplay.value = '';
+            fileListContainer.innerHTML = '';
+            overallProgressMessage.textContent = '';
+
+            switchView(roleSelectionView);
+        }
+
+        function switchView(viewToShow) {
+            [roleSelectionView, senderView, receiverView, statusView].forEach(v => v.classList.add('hidden'));
+            viewToShow.classList.remove('hidden');
+        }
+
+        function showNotification(message, isSuccess = true) {
+            const icon = notification.querySelector('i');
+            icon.className = isSuccess ? 'fas fa-check-circle text-green-400' : 'fas fa-exclamation-triangle text-yellow-400';
+            notification.querySelector('span').textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+
+        function updateStatusView({ title, message = '', iconClass, showProgress = false, actionText, onActionClick }) {
+            switchView(statusView);
+            statusTitle.textContent = title;
+            statusMessage.textContent = message;
+            statusIcon.className = `text-5xl ${iconClass}`;
+
+            progressBarContainer.classList.toggle('hidden', !showProgress);
+            connectionStats.classList.toggle('hidden', !showProgress);
+            fileListContainer.classList.toggle('hidden', !showProgress);
+
+            actionButton.innerHTML = actionText;
+            actionButton.onclick = onActionClick;
+        }
+
+        function updateOverallProgress() {
+            if (totalTransferSize === 0) return;
+
+            const percentage = Math.floor((totalBytesTransferred / totalTransferSize) * 100);
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${percentage}%`;
+
+            const now = Date.now();
+            const elapsedTime = (now - transferStartTime) / 1000;
+            const bytesPerSecond = elapsedTime > 0 ? totalBytesTransferred / elapsedTime : 0;
+            const remainingBytes = totalTransferSize - totalBytesTransferred;
+            const remainingTime = bytesPerSecond > 0 ? remainingBytes / bytesPerSecond : Infinity;
+
+            speedValue.textContent = `${formatBytes(bytesPerSecond)}/s`;
+            transferredValue.textContent = formatBytes(totalBytesTransferred);
+            elapsedValue.textContent = `${Math.floor(elapsedTime)}s`;
+            etaValue.textContent = isFinite(remainingTime) ? `${Math.ceil(remainingTime)}s` : '--';
+        }
+
+        function setupSender() {
+            currentRole = 'sender';
+            switchView(senderView);
+            senderStep1.classList.remove('hidden');
+            senderStep2.classList.add('hidden');
+        }
+
+        async function prepareAndStartSender(files, isFolder) {
+            if (files.length === 0) return;
+
+            showNotification('Processing Files...', true);
+
+            if (isFolder) {
+                const zip = new JSZip();
+                for (const file of files) {
+                    zip.file(file.webkitRelativePath, file);
+                }
+                const folderName = files[0].webkitRelativePath.split('/')[0] || 'archive';
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                selectedFiles = [new File([zipBlob], `${folderName}.zip`, { type: "application/zip" })];
+            } else {
+                selectedFiles = Array.from(files);
+            }
+
+            totalTransferSize = selectedFiles.reduce((acc, file) => acc + file.size, 0);
+            const fileCount = selectedFiles.length;
+            fileNameDisplay.textContent = `${fileCount} file${fileCount > 1 ? 's' : ''} selected (${formatBytes(totalTransferSize)})`;
+
+            senderStep1.classList.add('hidden');
+            senderStep2.classList.remove('hidden');
+
+            const shortCode = generateShortCode();
+            initPeer(shortCode);
+
+            peer.on('open', (id) => {
+                roomIdDisplay.value = id;
+                peer.on('connection', setupSenderConnection);
+            });
+        }
+
+        function setupSenderConnection(connection) {
+            conn = connection;
+            conn.on('open', () => {
+                isTransferActive = true;
+                transferStartTime = Date.now();
+                updateStatusView({
+                    title: 'Sending Files...',
+                    message: "Don't Close the Window Just Yet!",
+                    iconClass: 'fas fa-paper-plane text-indigo-400 mb-6',
+                    showProgress: true,
+                    actionText: '<i class="fas fa-times mr-2"></i>Cancel Transfer',
+                    onActionClick: fullResetAndGoToMain,
+                });
+                populateFileDisplayList(fileListContainer, selectedFiles);
+                sendMetadata();
+            });
+            conn.on('data', handleSenderData);
+            conn.on('close', handleConnectionClose);
+        }
+
+        function sendMetadata() {
+            fileQueue = [...selectedFiles];
+            const metadata = selectedFiles.map(file => ({
+                name: file.name,
+                size: file.size,
+                type: file.type,
+            }));
+            conn.send({ type: 'metadata', files: metadata, totalSize: totalTransferSize });
+        }
+
+        function handleSenderData(data) {
+            if (data.type === 'ready-for-next-file') {
+                sendNextFile();
+            } else if (data.type === 'transfer-complete-ack'){
+                isTransferActive = false;
+                updateStatusView({
+                    title: 'Transfer Complete.',
+                    iconClass: 'fas fa-check-circle text-green-400 mt-4 mb-0',
+                    showProgress: false,
+                    actionText: '<i class="fas fa-home mr-2"></i>Start Over',
+                    onActionClick: fullResetAndGoToMain,
+                });
+                overallProgressMessage.textContent = '';
+                showNotification('All files sent successfully!');
+            }
+        }
+
+        function sendNextFile() {
+            if (fileQueue.length === 0) {
+                conn.send({ type: 'all-files-sent' });
+                overallProgressMessage.textContent = 'Finalizing...';
+                return;
+            }
+
+            const file = fileQueue.shift();
+            const displayName = truncateFileName(file.name, 25);
+            overallProgressMessage.innerHTML = `Sending: <span class="font-semibold">${displayName}</span> <span class="text-slate-500">${formatBytes(file.size)}</span>`;
+
+            let offset = 0;
+            fileReader = new FileReader();
+
+            fileReader.onload = (e) => {
+                if (!isTransferActive || !conn || !conn.open) return;
+                try {
+                    conn.send(e.target.result);
+                    offset += e.target.result.byteLength;
+                    totalBytesTransferred += e.target.result.byteLength;
+                    updateOverallProgress();
+
+                    if (offset < file.size) {
+                        readSlice(offset);
+                    }
+                } catch (error) {
+                    console.error('Send Error:', error);
+                    showNotification('A Network Error Occurred During Transfer.', false);
+                    fullResetAndGoToMain();
+                }
+            };
+
+            const readSlice = (o) => {
+                const slice = file.slice(o, o + CHUNK_SIZE);
+                fileReader.readAsArrayBuffer(slice);
+            };
+
+            readSlice(0);
+        }
+
+        function setupReceiver() {
+            currentRole = 'receiver';
+            switchView(receiverView);
+            receiverStep1.classList.remove('hidden');
+            receiverConnecting.classList.add('hidden');
+            connectToRoomBtn.disabled = false;
+        }
+
+        function connectToSender() {
+            const roomId = roomIdInput.value.trim().toUpperCase();
+            if (roomId.length !== 6) {
+                showNotification('Please Enter a Valid 6-Letter Code', false);
+                return;
+            }
+
+            receiverStep1.classList.add('hidden');
+            receiverConnecting.classList.add('hidden');
+            connectToRoomBtn.disabled = true;
+
+            initPeer();
+            peer.on('open', () => {
+                conn = peer.connect(roomId, { reliable: true });
+                conn.on('open', () => {
+                    isTransferActive = true;
+                    updateStatusView({
+                        title: 'Connected!',
+                        message: 'Waiting For File Information From Sender...',
+                        iconClass: 'fas fa-link text-green-400 mb-6',
+                        actionText: '<i class="fas fa-times mr-2"></i>Cancel',
+                        onActionClick: fullResetAndGoToMain,
+                    });
+                });
+                conn.on('data', handleReceiverData);
+                conn.on('close', handleConnectionClose);
+            });
+        }
+
+        function handleReceiverData(data) {
+            try {
+                if (data.type === 'metadata') {
+                    handleMetadata(data);
+                } else if (data.type === 'all-files-sent') {
+                    handleAllFilesSent();
+                } else if (data instanceof ArrayBuffer) {
+                    processFileChunk(data);
+                }
+            } catch(error) {
+                console.error("Error processing received data:", error);
+                showNotification('An Error Occurred While Receiving Data.', false);
+                fullResetAndGoToMain();
+            }
+        }
+
+        function handleMetadata(data) {
+            incomingFilesMetadata = data.files;
+            totalTransferSize = data.totalSize;
+            transferStartTime = Date.now();
+
+            updateStatusView({
+                title: 'Receiving Files...',
+                message: "Don't Close the Window Just Yet!",
+                iconClass: 'fas fa-download text-blue-400 mb-6',
+                showProgress: true,
+                actionText: '<i class="fas fa-times mr-2"></i>Cancel Transfer',
+                onActionClick: fullResetAndGoToMain,
+            });
+            conn.send({ type: 'ready-for-next-file' });
+        }
+
+        function handleAllFilesSent() {
+            isTransferActive = false;
+            conn.send({ type: 'transfer-complete-ack' });
+            updateStatusView({
+                title: 'Transfer Complete.',
+                iconClass: 'fas fa-check-circle text-green-400 mt-4 mb-2',
+                showProgress: false,
+                actionText: '<i class="fas fa-home mr-2"></i>Start Over',
+                onActionClick: fullResetAndGoToMain,
+            });
+            overallProgressMessage.textContent = '';
+        }
+
+        function processFileChunk(chunk) {
+            const currentFile = incomingFilesMetadata[currentFileReceivingIndex];
+            if (!currentFile) return;
+
+            if (receivedPartBytes === 0) {
+                const displayName = truncateFileName(currentFile.name, 25);
+                overallProgressMessage.innerHTML = `Receiving: <span class="font-semibold">${displayName}</span> <span class="text-slate-500">${formatBytes(currentFile.size)}</span>`;
+            }
+
+            receivedFileParts.push(chunk);
+            receivedPartBytes += chunk.byteLength;
+            totalBytesTransferred += chunk.byteLength;
+            updateOverallProgress();
+
+            if (receivedPartBytes >= currentFile.size) {
+                const fileBlob = new Blob(receivedFileParts, { type: currentFile.type });
+                createDownloadLink(fileBlob, currentFile.name);
+
+                currentFileReceivingIndex++;
+                receivedFileParts = [];
+                receivedPartBytes = 0;
+
+                conn.send({ type: 'ready-for-next-file' });
+            }
+        }
+
+        function truncateFileName(name, maxLength) {
+            if (name.length <= maxLength) {
+                return name;
+            }
+
+            const extIndex = name.lastIndexOf('.');
+            if (extIndex === -1) {
+                return name.substring(0, maxLength - 3) + '...';
+            }
+
+            const ext = name.substring(extIndex);
+            const baseName = name.substring(0, extIndex);
+            const remainingLength = maxLength - ext.length - 3;
+
+            if (remainingLength <= 0) {
+                return '...' + ext;
+            }
+
+            const startLength = Math.ceil(remainingLength / 2);
+            const endLength = Math.floor(remainingLength / 2);
+
+            const start = baseName.substring(0, startLength);
+            const end = baseName.substring(baseName.length - endLength);
+
+            return `${start}...${end}${ext}`;
+        }
+
+        function populateFileDisplayList(container, files) {
+            container.innerHTML = '';
+            files.forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'p-3 rounded-md mb-2 flex items-center justify-between hover:bg-slate-800/50 transition-colors';
+                const icon = `<i class="fas fa-file-alt mr-3 text-slate-400"></i>`;
+                const nameDiv = `<div class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis"><span class="font-medium text-slate-200">${file.name}</span></div>`;
+                const sizeSpan = `<span class="text-xs text-indigo-400 flex-shrink-0 ml-2">${formatBytes(file.size)}</span>`;
+                item.innerHTML = `${icon}${nameDiv}${sizeSpan}`;
+                container.appendChild(item);
+            });
+        }
+
+        function createDownloadLink(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.className = 'p-3 rounded-md hover:bg-slate-800/50 transition-colors duration-200 mb-2 flex items-center justify-between';
+            const icon = `<i class="fas fa-download mr-3 text-green-400"></i>`;
+            const nameDiv = `<div class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis"><span class="font-medium text-slate-200">${fileName}</span></div>`;
+            const sizeSpan = `<span class="text-xs text-indigo-400 flex-shrink-0 ml-2">${formatBytes(blob.size)}</span>`;
+            a.innerHTML = `${icon}${nameDiv}${sizeSpan}`;
+            fileListContainer.appendChild(a);
+            a.click();
+        }
+
+        function handleConnectionClose() {
+            if (isTransferActive) {
+                updateStatusView({
+                    title: 'Connection Lost',
+                    message: 'The connection was closed unexpectedly.',
+                    iconClass: 'fas fa-times-circle text-red-400 mb-6',
+                    actionText: '<i class="fas fa-home mr-2"></i>Go To Main Screen',
+                    onActionClick: fullResetAndGoToMain,
+                });
+                isTransferActive = false;
+            }
+        }
+
+        function handlePeerError(err) {
+            console.error('PeerJS Error:', err);
+            let message = `Error: ${err.message}`;
+            if (err.type === 'unavailable-id') {
+                message = 'Code Already in Use, Trying Another...';
+                peer.destroy();
+                prepareAndStartSender(selectedFiles, selectedFiles[0].name.endsWith('.zip'));
+            } else if (err.type === 'peer-unavailable') {
+                message = 'Could Not Find a Peer With That Code.';
+                fullResetAndGoToMain();
+            } else {
+                fullResetAndGoToMain();
+            }
+            showNotification(message, false);
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            element.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                showNotification('Copied To Clipboard!');
+            } catch (err) {
+                showNotification('Failed To Copy!', false);
+            }
+            window.getSelection().removeAllRanges();
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        }
+
+        function generateShortCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        showSenderViewBtn.addEventListener('click', setupSender);
+        showReceiverViewBtn.addEventListener('click', setupReceiver);
+        backBtns.forEach(btn => btn.addEventListener('click', fullResetAndGoToMain));
+        fileInput.addEventListener('change', (e) => prepareAndStartSender(e.target.files, false));
+        folderInput.addEventListener('change', (e) => prepareAndStartSender(e.target.files, true));
+        connectToRoomBtn.addEventListener('click', connectToSender);
+        roomIdInput.addEventListener('keyup', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+            if (e.key === 'Enter') connectToSender();
+        });
+
+        switchView(roleSelectionView);
+    </script>
+</body>
+</html>
