@@ -16,6 +16,7 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: #e2e8f0;
         }
+
         .card {
             background-color: #1e293b;
             border-radius: 1.25rem;
@@ -26,11 +27,13 @@
             max-width: 520px;
             border: 1px solid rgba(71, 85, 105, 0.5);
         }
+
         @media (min-width: 640px) {
             .card {
                 padding: 2.5rem;
             }
         }
+
         .btn {
             display: inline-flex;
             align-items: center;
@@ -42,20 +45,31 @@
             transition: all 0.2s ease;
             cursor: pointer;
             border: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
             font-size: 1rem;
         }
+
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 7px 14px rgba(0,0,0,0.2);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.2);
         }
+
         .btn:active {
             transform: translateY(0);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
-        .btn-primary { background: linear-gradient(to right, #6366f1, #818cf8); }
-        .btn-secondary { background: linear-gradient(to right, #10b981, #34d399); }
-        .btn-danger { background: linear-gradient(to right, #ef4444, #f87171); }
+
+        .btn-primary {
+            background: linear-gradient(to right, #6366f1, #818cf8);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, #10b981, #34d399);
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, #ef4444, #f87171);
+        }
 
         .progress-bar-container {
             width: 100%;
@@ -65,6 +79,7 @@
             height: 1.75rem;
             position: relative;
         }
+
         .progress-bar {
             height: 100%;
             background: linear-gradient(to right, #6366f1, #818cf8);
@@ -77,6 +92,7 @@
             font-size: 0.875rem;
             color: white;
         }
+
         .progress-text {
             position: absolute;
             width: 100%;
@@ -88,7 +104,7 @@
             font-weight: 600;
             font-size: 0.875rem;
             color: #e2e8f0;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
         }
 
         #notification {
@@ -100,7 +116,7 @@
             color: white;
             padding: 1rem 1.75rem;
             border-radius: 0.75rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             z-index: 9999;
             opacity: 0;
             visibility: hidden;
@@ -111,6 +127,7 @@
             font-weight: 500;
             border: 1px solid #475569;
         }
+
         #notification.show {
             opacity: 1;
             visibility: visible;
@@ -130,8 +147,8 @@
             letter-spacing: 0.2em;
             transition: all 0.2s;
             color: #e2e8f0;
-            text-transform: uppercase;
         }
+
         .input-code:focus {
             outline: none;
             border-color: #818cf8;
@@ -142,10 +159,11 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
-            margin-top: 1.5rem;
+            width: 100%;
             font-size: 0.85rem;
             color: #94a3b8;
         }
+
         .stat-item {
             display: flex;
             flex-direction: column;
@@ -155,6 +173,7 @@
             border-radius: 0.75rem;
             border: 1px solid #334155;
         }
+
         .stat-value {
             font-weight: 700;
             color: #e2e8f0;
@@ -170,7 +189,9 @@
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
     <header class="text-center mb-8 mt-4">
-        <h1 class="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">File Share</h1>
+        <h1 class="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            File Share
+        </h1>
         <p class="mt-3 text-lg text-indigo-200 max-w-md">Share Files With Anyone</p>
     </header>
 
@@ -180,16 +201,20 @@
     </div>
 
     <div id="roleSelectionView" class="card text-center">
-        <h2 class="text-2xl font-semibold mb-6 text-slate-200">What Would You Like To Do?</h2>
+        <h2 class="text-2xl font-semibold mb-6 text-slate-200">What Would You Like to Do?</h2>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <button id="showSenderViewBtn" class="btn btn-primary w-full sm:w-auto"><i class="fas fa-upload mr-2"></i>Send</button>
-            <button id="showReceiverViewBtn" class="btn btn-secondary w-full sm:w-auto"><i class="fas fa-download mr-2"></i>Receive</button>
+            <button id="showSenderViewBtn" class="btn btn-primary w-full sm:w-auto">
+                <i class="fas fa-upload mr-2"></i>Send
+            </button>
+            <button id="showReceiverViewBtn" class="btn btn-secondary w-full sm:w-auto">
+                <i class="fas fa-download mr-2"></i>Receive
+            </button>
         </div>
     </div>
 
     <div id="senderView" class="card hidden">
         <div id="senderStep1">
-            <h2 class="text-2xl font-semibold mb-6 text-slate-200 text-center">Select Files or a Folder</h2>
+            <h2 class="text-2xl font-semibold mb-6 text-slate-200 text-center">Select a File or Folder</h2>
             <div class="space-y-4">
                 <label for="fileInput" class="btn btn-primary w-full cursor-pointer">
                     <i class="fas fa-file-alt mr-2"></i> Select File
@@ -200,28 +225,36 @@
                 </label>
                 <input type="file" id="folderInput" class="hidden" webkitdirectory directory>
             </div>
-            <p id="fileName" class="mt-4 text-center text-sm text-slate-400">No File or Folder Selected.</p>
-            <button class="back-btn mt-6 w-full sm:w-auto"><i class="fas fa-arrow-left mr-2"></i>Back</button>
+            <p id="fileName" class="mt-2 text-center text-sm text-slate-400"></p>
+            <button class="back-btn mt-4 w-full sm:w-auto">
+                <i class="fas fa-arrow-left mr-2"></i>Back
+            </button>
         </div>
         <div id="senderStep2" class="hidden text-center">
             <h3 class="font-semibold mb-2 text-lg text-slate-200">Share This Code With Receiver</h3>
-            <div class="relative mb-4">
+            <div class="relative mb-2">
                 <input type="text" id="roomIdDisplay" class="input-code" readonly>
-                <button onclick="copyToClipboard('roomIdDisplay')" class="absolute top-1/2 -translate-y-1/2 right-4 text-slate-400 hover:text-indigo-300 text-lg"><i class="fas fa-copy"></i></button>
+                <button onclick="copyToClipboard('roomIdDisplay')" class="absolute top-1/2 -translate-y-1/2 right-4 text-slate-400 hover:text-indigo-300 text-lg">
+                    <i class="fas fa-copy"></i>
+                </button>
             </div>
-            <div class="py-4">
+            <div class="py-2">
                 <i class="fas fa-spinner fa-spin text-3xl text-indigo-400 mb-3"></i>
                 <p class="text-slate-400">Waiting for Receiver to Join...</p>
             </div>
-            <button class="back-btn mt-2 w-full sm:w-auto"><i class="fas fa-arrow-left mr-2"></i>Back</button>
+            <button class="back-btn mt-2 w-full sm:w-auto">
+                <i class="fas fa-arrow-left mr-2"></i>Back
+            </button>
         </div>
     </div>
 
     <div id="receiverView" class="card hidden">
-        <button class="back-btn mb-4"><i class="fas fa-arrow-left mr-2"></i>Back</button>
+        <button class="back-btn mb-4">
+            <i class="fas fa-arrow-left mr-2"></i>Back
+        </button>
         <div id="receiverStep1">
             <h3 class="font-semibold mb-3 text-lg text-center text-slate-200">Enter the Code From Sender</h3>
-            <input type="text" id="roomIdInput" class="input-code" placeholder="ABCDEF" maxlength="6">
+            <input type="tel" inputmode="numeric" id="roomIdInput" class="input-code" placeholder="123456" maxlength="6">
             <button id="connectToRoomBtn" class="btn btn-primary mt-4 w-full">Connect</button>
         </div>
         <div id="receiverConnecting" class="hidden text-center py-6">
@@ -230,28 +263,36 @@
         </div>
     </div>
 
-    <div id="statusView" class="card hidden text-center">
-        <h2 id="statusTitle" class="text-2xl font-semibold mb-3 text-slate-200"></h2>
-        <p id="statusMessage" class="text-slate-400 mb-2"></p>
-        <i id="statusIcon" class="text-5xl"></i>
-
-        <div class="progress-bar-container mb-4 hidden">
-            <div class="progress-text">0%</div>
-            <div id="progressBar" class="progress-bar"></div>
+    <div id="statusView" class="card hidden">
+        <div class="flex flex-col items-center text-center space-y-6">
+            <h2 id="statusTitle" class="text-2xl font-semibold text-slate-200"></h2>
+            <p id="statusMessage" class="text-slate-400"></p>
+            <i id="statusIcon" class="text-5xl"></i>
+            <div class="progress-bar-container w-full hidden">
+                <div class="progress-text">0%</div>
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <p id="overallProgressMessage" class="text-sm text-slate-400 h-5"></p>
+            <div class="connection-stats hidden">
+                <div class="stat-item">
+                    <span class="font-semibold">Speed</span>
+                    <span id="speedValue" class="stat-value">0 MB/s</span>
+                </div>
+                <div class="stat-item">
+                    <span class="font-semibold">Transferred</span>
+                    <span id="transferredValue" class="stat-value">0 MB</span>
+                </div>
+                <div class="stat-item">
+                    <span class="font-semibold">Elapsed</span>
+                    <span id="elapsedValue" class="stat-value">--</span>
+                </div>
+                <div class="stat-item">
+                    <span class="font-semibold">ETA</span>
+                    <span id="etaValue" class="stat-value">--</span>
+                </div>
+            </div>
+            <button id="actionButton" class="btn btn-danger w-full"></button>
         </div>
-
-        <p id="overallProgressMessage" class="text-sm text-slate-400 my-2 h-5"></p>
-
-        <div class="connection-stats hidden">
-            <div class="stat-item"><span class="font-semibold">Speed</span><span id="speedValue" class="stat-value">0 MB/s</span></div>
-            <div class="stat-item"><span class="font-semibold">Transferred</span><span id="transferredValue" class="stat-value">0 MB</span></div>
-            <div class="stat-item"><span class="font-semibold">Elapsed</span><span id="elapsedValue" class="stat-value">--</span></div>
-            <div class="stat-item"><span class="font-semibold">ETA</span><span id="etaValue" class="stat-value">--</span></div>
-        </div>
-
-        <div id="fileListContainer" class="mt-6 w-full text-left bg-slate-900/70 p-4 rounded-lg max-h-60 overflow-y-auto hidden"></div>
-
-        <button id="actionButton" class="btn btn-danger mt-0 w-full"></button>
     </div>
 
     <script>
@@ -276,16 +317,15 @@
         const statusTitle = document.getElementById('statusTitle');
         const statusMessage = document.getElementById('statusMessage');
         const statusIcon = document.getElementById('statusIcon');
-        const progressBarContainer = document.querySelector('.progress-bar-container');
+        const progressBarContainer = statusView.querySelector('.progress-bar-container');
         const progressBar = document.getElementById('progressBar');
-        const progressText = document.querySelector('.progress-text');
+        const progressText = statusView.querySelector('.progress-text');
         const overallProgressMessage = document.getElementById('overallProgressMessage');
         const speedValue = document.getElementById('speedValue');
         const transferredValue = document.getElementById('transferredValue');
         const elapsedValue = document.getElementById('elapsedValue');
         const etaValue = document.getElementById('etaValue');
-        const connectionStats = document.querySelector('.connection-stats');
-        const fileListContainer = document.getElementById('fileListContainer');
+        const connectionStats = statusView.querySelector('.connection-stats');
         const notification = document.getElementById('notification');
 
         let peer = null;
@@ -317,18 +357,23 @@
             if (peer) peer.destroy();
             if (fileReader && fileReader.readyState === 1) fileReader.abort();
 
-            peer = null; conn = null; currentRole = '';
-            selectedFiles = []; fileQueue = [];
-            totalTransferSize = 0; totalBytesTransferred = 0;
-            incomingFilesMetadata = []; currentFileReceivingIndex = 0;
-            receivedFileParts = []; receivedPartBytes = 0;
+            peer = null;
+            conn = null;
+            currentRole = '';
+            selectedFiles = [];
+            fileQueue = [];
+            totalTransferSize = 0;
+            totalBytesTransferred = 0;
+            incomingFilesMetadata = [];
+            currentFileReceivingIndex = 0;
+            receivedFileParts = [];
+            receivedPartBytes = 0;
 
             fileInput.value = '';
             folderInput.value = '';
-            fileNameDisplay.textContent = 'No File or Folder Selected.';
+            fileNameDisplay.textContent = '';
             roomIdInput.value = '';
             roomIdDisplay.value = '';
-            fileListContainer.innerHTML = '';
             overallProgressMessage.textContent = '';
 
             switchView(roleSelectionView);
@@ -353,9 +398,10 @@
             statusMessage.textContent = message;
             statusIcon.className = `text-5xl ${iconClass}`;
 
+            statusMessage.classList.toggle('hidden', !message);
             progressBarContainer.classList.toggle('hidden', !showProgress);
             connectionStats.classList.toggle('hidden', !showProgress);
-            fileListContainer.classList.toggle('hidden', !showProgress);
+            overallProgressMessage.classList.toggle('hidden', !showProgress);
 
             actionButton.innerHTML = actionText;
             actionButton.onclick = onActionClick;
@@ -428,12 +474,11 @@
                 updateStatusView({
                     title: 'Sending Files...',
                     message: "Don't Close the Window Just Yet!",
-                    iconClass: 'fas fa-paper-plane text-indigo-400 mb-6',
+                    iconClass: 'fas fa-paper-plane text-indigo-400',
                     showProgress: true,
                     actionText: '<i class="fas fa-times mr-2"></i>Cancel Transfer',
                     onActionClick: fullResetAndGoToMain,
                 });
-                populateFileDisplayList(fileListContainer, selectedFiles);
                 sendMetadata();
             });
             conn.on('data', handleSenderData);
@@ -453,16 +498,15 @@
         function handleSenderData(data) {
             if (data.type === 'ready-for-next-file') {
                 sendNextFile();
-            } else if (data.type === 'transfer-complete-ack'){
+            } else if (data.type === 'transfer-complete-ack') {
                 isTransferActive = false;
                 updateStatusView({
                     title: 'Transfer Complete.',
-                    iconClass: 'fas fa-check-circle text-green-400 mt-4 mb-0',
+                    iconClass: 'fas fa-check-circle text-green-400 leading-none',
                     showProgress: false,
                     actionText: '<i class="fas fa-home mr-2"></i>Start Over',
                     onActionClick: fullResetAndGoToMain,
                 });
-                overallProgressMessage.textContent = '';
                 showNotification('All files sent successfully!');
             }
         }
@@ -516,9 +560,9 @@
         }
 
         function connectToSender() {
-            const roomId = roomIdInput.value.trim().toUpperCase();
-            if (roomId.length !== 6) {
-                showNotification('Please Enter a Valid 6-Letter Code', false);
+            const roomId = roomIdInput.value.trim();
+            if (roomId.length !== 6 || !/^\d{6}$/.test(roomId)) {
+                showNotification('Please Enter a Valid 6-Digit Code', false);
                 return;
             }
 
@@ -534,7 +578,7 @@
                     updateStatusView({
                         title: 'Connected!',
                         message: 'Waiting For File Information From Sender...',
-                        iconClass: 'fas fa-link text-green-400 mb-6',
+                        iconClass: 'fas fa-link text-green-400',
                         actionText: '<i class="fas fa-times mr-2"></i>Cancel',
                         onActionClick: fullResetAndGoToMain,
                     });
@@ -568,7 +612,7 @@
             updateStatusView({
                 title: 'Receiving Files...',
                 message: "Don't Close the Window Just Yet!",
-                iconClass: 'fas fa-download text-blue-400 mb-6',
+                iconClass: 'fas fa-download text-blue-400',
                 showProgress: true,
                 actionText: '<i class="fas fa-times mr-2"></i>Cancel Transfer',
                 onActionClick: fullResetAndGoToMain,
@@ -581,12 +625,11 @@
             conn.send({ type: 'transfer-complete-ack' });
             updateStatusView({
                 title: 'Transfer Complete.',
-                iconClass: 'fas fa-check-circle text-green-400 mt-4 mb-2',
+                iconClass: 'fas fa-check-circle text-green-400 leading-none',
                 showProgress: false,
                 actionText: '<i class="fas fa-home mr-2"></i>Start Over',
                 onActionClick: fullResetAndGoToMain,
             });
-            overallProgressMessage.textContent = '';
         }
 
         function processFileChunk(chunk) {
@@ -615,58 +658,16 @@
             }
         }
 
-        function truncateFileName(name, maxLength) {
-            if (name.length <= maxLength) {
-                return name;
-            }
-
-            const extIndex = name.lastIndexOf('.');
-            if (extIndex === -1) {
-                return name.substring(0, maxLength - 3) + '...';
-            }
-
-            const ext = name.substring(extIndex);
-            const baseName = name.substring(0, extIndex);
-            const remainingLength = maxLength - ext.length - 3;
-
-            if (remainingLength <= 0) {
-                return '...' + ext;
-            }
-
-            const startLength = Math.ceil(remainingLength / 2);
-            const endLength = Math.floor(remainingLength / 2);
-
-            const start = baseName.substring(0, startLength);
-            const end = baseName.substring(baseName.length - endLength);
-
-            return `${start}...${end}${ext}`;
-        }
-
-        function populateFileDisplayList(container, files) {
-            container.innerHTML = '';
-            files.forEach(file => {
-                const item = document.createElement('div');
-                item.className = 'p-3 rounded-md mb-2 flex items-center justify-between hover:bg-slate-800/50 transition-colors';
-                const icon = `<i class="fas fa-file-alt mr-3 text-slate-400"></i>`;
-                const nameDiv = `<div class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis"><span class="font-medium text-slate-200">${file.name}</span></div>`;
-                const sizeSpan = `<span class="text-xs text-indigo-400 flex-shrink-0 ml-2">${formatBytes(file.size)}</span>`;
-                item.innerHTML = `${icon}${nameDiv}${sizeSpan}`;
-                container.appendChild(item);
-            });
-        }
-
         function createDownloadLink(blob, fileName) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
+            a.style.display = 'none';
             a.href = url;
             a.download = fileName;
-            a.className = 'p-3 rounded-md hover:bg-slate-800/50 transition-colors duration-200 mb-2 flex items-center justify-between';
-            const icon = `<i class="fas fa-download mr-3 text-green-400"></i>`;
-            const nameDiv = `<div class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis"><span class="font-medium text-slate-200">${fileName}</span></div>`;
-            const sizeSpan = `<span class="text-xs text-indigo-400 flex-shrink-0 ml-2">${formatBytes(blob.size)}</span>`;
-            a.innerHTML = `${icon}${nameDiv}${sizeSpan}`;
-            fileListContainer.appendChild(a);
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function handleConnectionClose() {
@@ -674,7 +675,7 @@
                 updateStatusView({
                     title: 'Connection Lost',
                     message: 'The connection was closed unexpectedly.',
-                    iconClass: 'fas fa-times-circle text-red-400 mb-6',
+                    iconClass: 'fas fa-times-circle text-red-400',
                     actionText: '<i class="fas fa-home mr-2"></i>Go To Main Screen',
                     onActionClick: fullResetAndGoToMain,
                 });
@@ -720,13 +721,21 @@
             return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
         }
 
+        function truncateFileName(name, maxLength) {
+            if (name.length <= maxLength) return name;
+            const extIndex = name.lastIndexOf('.');
+            if (extIndex === -1) return name.substring(0, maxLength - 3) + '...';
+            const ext = name.substring(extIndex);
+            const baseName = name.substring(0, extIndex);
+            const remainingLength = maxLength - ext.length - 3;
+            if (remainingLength <= 0) return '...' + ext;
+            const start = baseName.substring(0, Math.ceil(remainingLength / 2));
+            const end = baseName.substring(baseName.length - Math.floor(remainingLength / 2));
+            return `${start}...${end}${ext}`;
+        }
+
         function generateShortCode() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let result = '';
-            for (let i = 0; i < 6; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
+            return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
         showSenderViewBtn.addEventListener('click', setupSender);
@@ -736,7 +745,6 @@
         folderInput.addEventListener('change', (e) => prepareAndStartSender(e.target.files, true));
         connectToRoomBtn.addEventListener('click', connectToSender);
         roomIdInput.addEventListener('keyup', (e) => {
-            e.target.value = e.target.value.toUpperCase();
             if (e.key === 'Enter') connectToSender();
         });
 
